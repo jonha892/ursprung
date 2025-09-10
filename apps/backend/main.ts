@@ -10,6 +10,8 @@ import { oakCors } from "cors";
 import { isDev, openDb } from "./db.ts";
 import { UserRepository } from "./user_repository.ts";
 import { RefreshTokenRepository } from "./refresh_token_repository.ts";
+import { DddProjectContentMapSchema } from "../../packages/shared/ddd_project.ts";
+import { ProjectRepository } from "./project_repository.ts";
 
 const PORT = Number(Deno.env.get("PORT")) || 8000;
 
@@ -32,6 +34,8 @@ if (isDev()) {
     role: "worker",
   });
 }
+
+const projectsRepo = new ProjectRepository(db);
 
 const router = new Router<State>();
 router
@@ -74,13 +78,50 @@ router
     const provided = String(body.refreshToken ?? "");
     const rt = provided ? refreshTokens.find(provided) : null;
     if (!rt || rt.revoked_at) {
+      let totalTokens = 0;
+      try {
+        const row = db.queryEntries<{ c: number }>(
+          "SELECT COUNT(*) as c FROM refresh_tokens"
+        )[0];
+        totalTokens = row?.c ?? 0;
+      } catch (_) {
+        // ignore
+      }
+      const reason = !rt ? "not_found" : "revoked";
+      console.error(
+        JSON.stringify({
+          level: "error",
+          at: "refresh_token_validation",
+          reason,
+          provided: provided ? `${provided.slice(0, 8)}…` : "(empty)",
+          revoked_at: rt?.revoked_at ?? null,
+          total_tokens: totalTokens,
+        })
+      );
       ctx.response.status = 401;
-      ctx.response.body = { error: "invalid_refresh_token" };
+      ctx.response.type = "json";
+      ctx.response.body = {
+        error: "invalid_refresh_token",
+        reason,
+        totalTokens,
+      };
       return;
     }
-    if (new Date(rt.expires_at) < new Date()) {
+    const now = new Date();
+    const exp = new Date(rt.expires_at);
+    if (exp < now) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          at: "refresh_token_validation",
+          reason: "expired",
+          provided: `${provided.slice(0, 8)}…`,
+          expires_at: rt.expires_at,
+          now: now.toISOString(),
+        })
+      );
       ctx.response.status = 401;
-      ctx.response.body = { error: "refresh_token_expired" };
+      ctx.response.body = { error: "refresh_token_expired", reason: "expired" };
       return;
     }
     const row = db.queryEntries<{ id: string; email: string; role: string }>(
@@ -88,8 +129,16 @@ router
       [rt.user_id]
     )[0];
     if (!row) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          at: "refresh_token_validation",
+          reason: "user_missing",
+          user_id: rt.user_id,
+        })
+      );
       ctx.response.status = 401;
-      ctx.response.body = { error: "user_not_found" };
+      ctx.response.body = { error: "user_not_found", reason: "user_missing" };
       return;
     }
     const newAccess = await signJwt({
@@ -130,6 +179,113 @@ router
   .get("/api/hello", (ctx) => {
     ctx.response.type = "json";
     ctx.response.body = { message: "Hello from Deno and Oak" };
+  })
+  // List projects for current user
+  .get("/api/projects", authMiddleware, (ctx) => {
+    const userId = ctx.state.user!.id;
+    const list = projectsRepo.listByUser(userId);
+    ctx.response.type = "json";
+    ctx.response.body = { projects: list };
+  })
+  // Insert a project created client-side (must be full valid object)
+  .post("/api/projects", authMiddleware, async (ctx) => {
+    const body = ctx.request.hasBody
+      ? await ctx.request.body({ type: "json" }).value
+      : undefined;
+    if (!body || typeof body !== "object") {
+      ctx.response.status = 400;
+      ctx.response.body = { error: "invalid_body" };
+      return;
+    }
+    // Validate via schema (ensures content map etc.)
+    try {
+      if (
+        !body.id ||
+        !body.name ||
+        !body.abstract ||
+        !body.createdAt ||
+        !body.updatedAt
+      ) {
+        throw new Error("missing core fields");
+      }
+      DddProjectContentMapSchema.parse(body.content);
+    } catch (e) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        error: "invalid_project",
+        message: e instanceof Error ? e.message : String(e),
+      };
+      return;
+    }
+    // Duplicate check
+    const existing = projectsRepo.find(ctx.state.user!.id, body.id);
+    if (existing) {
+      ctx.response.status = 409;
+      ctx.response.body = { error: "id_exists" };
+      return;
+    }
+    try {
+      const created = projectsRepo.insert(ctx.state.user!.id, body);
+      ctx.response.status = 201;
+      ctx.response.type = "json";
+      ctx.response.body = { project: created };
+    } catch (e) {
+      ctx.response.status = 400;
+      ctx.response.body = { error: "insert_failed", message: String(e) };
+    }
+  })
+  // Update (name, abstract, or full content replacement)
+  .put("/api/projects/:id", authMiddleware, async (ctx) => {
+    const id = ctx.params.id!;
+    if (!id) {
+      ctx.response.status = 400;
+      ctx.response.body = { error: "missing_id" };
+      return;
+    }
+    const body = ctx.request.hasBody
+      ? await ctx.request.body({ type: "json" }).value
+      : {};
+    // Optional: validate content if provided
+    if (body.content) {
+      try {
+        DddProjectContentMapSchema.parse(body.content);
+      } catch (e) {
+        ctx.response.status = 400;
+        ctx.response.body = {
+          error: "invalid_content",
+          message: e instanceof Error ? e.message : String(e),
+        };
+        return;
+      }
+    }
+    try {
+      const updated = projectsRepo.updateContent(ctx.state.user!.id, id, {
+        name: body.name,
+        abstract: body.abstract,
+        content: body.content,
+      });
+      if (!updated) {
+        ctx.response.status = 404;
+        ctx.response.body = { error: "not_found" };
+        return;
+      }
+      ctx.response.type = "json";
+      ctx.response.body = { project: updated };
+    } catch (e) {
+      ctx.response.status = 400;
+      ctx.response.body = { error: "update_failed", message: String(e) };
+    }
+  })
+  // Delete project
+  .delete("/api/projects/:id", authMiddleware, (ctx) => {
+    const id = ctx.params.id!;
+    const deleted = projectsRepo.delete(ctx.state.user!.id, id);
+    if (!deleted) {
+      ctx.response.status = 404;
+      ctx.response.body = { error: "not_found" };
+      return;
+    }
+    ctx.response.status = 204;
   })
   .post("/api/echo", async (ctx) => {
     const body = ctx.request.hasBody ? await ctx.request.body().value : {};

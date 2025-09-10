@@ -6,7 +6,8 @@
   "lint": { "rules": { "tags": ["recommended"] } },
   "imports": {
     // Monorepo-Shortcut für geteilte Utilities/Typen
-    "shared/": "./packages/shared/"
+    "shared/": "./packages/shared/",
+    "zod": "npm:zod@^4.1.5"
   },
   "tasks": {
     // Beide Services parallel starten (Backend :8000, Frontend :5173)

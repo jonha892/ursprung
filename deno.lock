@@ -1,10 +1,12 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@deno/vite-plugin@^1.0.5": "1.0.5_vite@7.1.1__picomatch@4.0.3",
+    "npm:@ant-design/v5-patch-for-react-19@1": "1.0.3_antd@5.27.3__react@19.1.1__react-dom@19.1.1___react@19.1.1__dayjs@1.11.18_react@19.1.1_react-dom@19.1.1__react@19.1.1",
+    "npm:@deno/vite-plugin@^1.0.5": "1.0.5_vite@7.1.1__picomatch@4.0.3_@types+node@22.15.15",
+    "npm:@types/node@*": "22.15.15",
     "npm:@types/react-dom@^19.1.7": "19.1.7_@types+react@19.1.9",
     "npm:@types/react@^19.1.9": "19.1.9",
-    "npm:@vitejs/plugin-react-swc@^3.10.2": "3.11.0_vite@7.1.1__picomatch@4.0.3",
+    "npm:@vitejs/plugin-react-swc@^3.10.2": "3.11.0_vite@7.1.1__picomatch@4.0.3_@types+node@22.15.15",
     "npm:antd@*": "5.27.3_react@19.1.1_react-dom@19.1.1__react@19.1.1_dayjs@1.11.18",
     "npm:antd@5": "5.27.3_react@19.1.1_react-dom@19.1.1__react@19.1.1_dayjs@1.11.18",
     "npm:bcryptjs@*": "3.0.2",
@@ -12,8 +14,9 @@
     "npm:react-router-dom@*": "6.30.1_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:react-router-dom@^6.26.2": "6.30.1_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:react@^19.1.1": "19.1.1",
-    "npm:vite@*": "7.1.1_picomatch@4.0.3",
-    "npm:vite@^7.0.6": "7.1.1_picomatch@4.0.3",
+    "npm:vite@*": "7.1.1_picomatch@4.0.3_@types+node@22.15.15",
+    "npm:vite@^7.0.6": "7.1.1_picomatch@4.0.3_@types+node@22.15.15",
+    "npm:zod@^4.1.5": "4.1.5",
     "npm:zustand@*": "5.0.8_@types+react@19.1.9_react@19.1.1",
     "npm:zustand@^5.0.0-rc.2": "5.0.8_@types+react@19.1.9_react@19.1.1"
   },
@@ -80,13 +83,27 @@
         "throttle-debounce"
       ]
     },
+    "@ant-design/v5-patch-for-react-19@1.0.3_antd@5.27.3__react@19.1.1__react-dom@19.1.1___react@19.1.1__dayjs@1.11.18_react@19.1.1_react-dom@19.1.1__react@19.1.1": {
+      "integrity": "sha512-iWfZuSUl5kuhqLUw7jJXUQFMMkM7XpW7apmKzQBQHU0cpifYW4A79xIBt9YVO5IBajKpPG5UKP87Ft7Yrw1p/w==",
+      "dependencies": [
+        "antd",
+        "react",
+        "react-dom"
+      ]
+    },
     "@babel/runtime@7.28.4": {
       "integrity": "sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ=="
     },
     "@deno/vite-plugin@1.0.5_vite@7.1.1__picomatch@4.0.3": {
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
-        "vite"
+        "vite@7.1.1_picomatch@4.0.3"
+      ]
+    },
+    "@deno/vite-plugin@1.0.5_vite@7.1.1__picomatch@4.0.3_@types+node@22.15.15": {
+      "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
+      "dependencies": [
+        "vite@7.1.1_picomatch@4.0.3_@types+node@22.15.15"
       ]
     },
     "@emotion/hash@0.8.0": {
@@ -500,6 +517,12 @@
     "@types/estree@1.0.8": {
       "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="
     },
+    "@types/node@22.15.15": {
+      "integrity": "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
     "@types/react-dom@19.1.7_@types+react@19.1.9": {
       "integrity": "sha512-i5ZzwYpqjmrKenzkoLM2Ibzt6mAsM7pxB6BCIouEVVmgiqaMj1TjaK7hnA36hbW5aZv20kx7Lw6hWzPWg0Rurw==",
       "dependencies": [
@@ -517,7 +540,15 @@
       "dependencies": [
         "@rolldown/pluginutils",
         "@swc/core",
-        "vite"
+        "vite@7.1.1_picomatch@4.0.3"
+      ]
+    },
+    "@vitejs/plugin-react-swc@3.11.0_vite@7.1.1__picomatch@4.0.3_@types+node@22.15.15": {
+      "integrity": "sha512-YTJCGFdNMHCMfjODYtxRNVAYmTWQ1Lb8PulP/2/f/oEEtglw8oKxKIZmmRkyXrVrHfsKOaVkAc3NT9/dMutO5w==",
+      "dependencies": [
+        "@rolldown/pluginutils",
+        "@swc/core",
+        "vite@7.1.1_picomatch@4.0.3_@types+node@22.15.15"
       ]
     },
     "antd@5.27.3_react@19.1.1_react-dom@19.1.1__react@19.1.1_dayjs@1.11.18": {
@@ -1151,6 +1182,9 @@
     "toggle-selection@1.0.6": {
       "integrity": "sha512-BiZS+C1OS8g/q2RRbJmy59xpyghNBqrr6k5L/uKBGRsTfxmu3ffiRnd8mlGPUVayg8pvfi5urfnu8TU7DVOkLQ=="
     },
+    "undici-types@6.21.0": {
+      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
+    },
     "vite@7.1.1_picomatch@4.0.3": {
       "integrity": "sha512-yJ+Mp7OyV+4S+afWo+QyoL9jFWD11QFH0i5i7JypnfTcA1rmgxCbiA8WwAICDEtZ1Z1hzrVhN8R8rGTqkTY8ZQ==",
       "dependencies": [
@@ -1165,6 +1199,28 @@
         "fsevents"
       ],
       "bin": true
+    },
+    "vite@7.1.1_picomatch@4.0.3_@types+node@22.15.15": {
+      "integrity": "sha512-yJ+Mp7OyV+4S+afWo+QyoL9jFWD11QFH0i5i7JypnfTcA1rmgxCbiA8WwAICDEtZ1Z1hzrVhN8R8rGTqkTY8ZQ==",
+      "dependencies": [
+        "@types/node",
+        "esbuild",
+        "fdir",
+        "picomatch",
+        "postcss",
+        "rollup",
+        "tinyglobby"
+      ],
+      "optionalDependencies": [
+        "fsevents"
+      ],
+      "optionalPeers": [
+        "@types/node"
+      ],
+      "bin": true
+    },
+    "zod@4.1.5": {
+      "integrity": "sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg=="
     },
     "zustand@5.0.8_@types+react@19.1.9_react@19.1.1": {
       "integrity": "sha512-gyPKpIaxY9XcO2vSMrLbiER7QMAMGOQZVRdJ6Zi782jkbzZygq5GI9nG8g+sMgitRtndwaBSl7uiqC49o1SSiw==",
@@ -1347,12 +1403,34 @@
     "https://deno.land/x/sqlite@v3.9.1/src/error.ts": "f7a15cb00d7c3797da1aefee3cf86d23e0ae92e73f0ba3165496c3816ab9503a",
     "https://deno.land/x/sqlite@v3.9.1/src/function.ts": "bc778cab7a6d771f690afa27264c524d22fcb96f1bb61959ade7922c15a4ab8d",
     "https://deno.land/x/sqlite@v3.9.1/src/query.ts": "d58abda928f6582d77bad685ecf551b1be8a15e8e38403e293ec38522e030cad",
-    "https://deno.land/x/sqlite@v3.9.1/src/wasm.ts": "e79d0baa6e42423257fb3c7cc98091c54399254867e0f34a09b5bdef37bd9487"
+    "https://deno.land/x/sqlite@v3.9.1/src/wasm.ts": "e79d0baa6e42423257fb3c7cc98091c54399254867e0f34a09b5bdef37bd9487",
+    "https://deno.land/x/zod@v3.23.8/ZodError.ts": "528da200fbe995157b9ae91498b103c4ef482217a5c086249507ac850bd78f52",
+    "https://deno.land/x/zod@v3.23.8/errors.ts": "5285922d2be9700cc0c70c95e4858952b07ae193aa0224be3cbd5cd5567eabef",
+    "https://deno.land/x/zod@v3.23.8/external.ts": "a6cfbd61e9e097d5f42f8a7ed6f92f93f51ff927d29c9fbaec04f03cbce130fe",
+    "https://deno.land/x/zod@v3.23.8/helpers/enumUtil.ts": "54efc393cc9860e687d8b81ff52e980def00fa67377ad0bf8b3104f8a5bf698c",
+    "https://deno.land/x/zod@v3.23.8/helpers/errorUtil.ts": "7a77328240be7b847af6de9189963bd9f79cab32bbc61502a9db4fe6683e2ea7",
+    "https://deno.land/x/zod@v3.23.8/helpers/parseUtil.ts": "c14814d167cc286972b6e094df88d7d982572a08424b7cd50f862036b6fcaa77",
+    "https://deno.land/x/zod@v3.23.8/helpers/partialUtil.ts": "998c2fe79795257d4d1cf10361e74492f3b7d852f61057c7c08ac0a46488b7e7",
+    "https://deno.land/x/zod@v3.23.8/helpers/typeAliases.ts": "0fda31a063c6736fc3cf9090dd94865c811dfff4f3cb8707b932bf937c6f2c3e",
+    "https://deno.land/x/zod@v3.23.8/helpers/util.ts": "30c273131661ca5dc973f2cfb196fa23caf3a43e224cdde7a683b72e101a31fc",
+    "https://deno.land/x/zod@v3.23.8/index.ts": "d27aabd973613985574bc31f39e45cb5d856aa122ef094a9f38a463b8ef1a268",
+    "https://deno.land/x/zod@v3.23.8/locales/en.ts": "a7a25cd23563ccb5e0eed214d9b31846305ddbcdb9c5c8f508b108943366ab4c",
+    "https://deno.land/x/zod@v3.23.8/mod.ts": "ec6e2b1255c1a350b80188f97bd0a6bac45801bb46fc48f50b9763aa66046039",
+    "https://deno.land/x/zod@v3.23.8/types.ts": "1b172c90782b1eaa837100ebb6abd726d79d6c1ec336350c8e851e0fd706bf5c"
   },
   "workspace": {
+    "dependencies": [
+      "npm:zod@^4.1.5"
+    ],
     "members": {
+      "apps/backend": {
+        "dependencies": [
+          "npm:zod@^4.1.5"
+        ]
+      },
       "apps/frontend": {
         "dependencies": [
+          "npm:@ant-design/v5-patch-for-react-19@1",
           "npm:@deno/vite-plugin@^1.0.5",
           "npm:@types/react-dom@^19.1.7",
           "npm:@types/react@^19.1.9",
@@ -1362,6 +1440,7 @@
           "npm:react-router-dom@^6.26.2",
           "npm:react@^19.1.1",
           "npm:vite@^7.0.6",
+          "npm:zod@^4.1.5",
           "npm:zustand@^5.0.0-rc.2"
         ]
       }

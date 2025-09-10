@@ -3,30 +3,43 @@ import { Button, Card, Form, Input, App as AntApp } from "antd";
 import { isDev } from "../lib/auth.ts";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore.ts";
+import { userService } from "../lib/user_service.ts";
 
 export default function Login() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
-  const storeLogin = useAuthStore((s) => s.login);
+  const setAuth = useAuthStore((s) => s.setAuth);
   const { message } = AntApp.useApp();
 
   useEffect(() => {
-    // In dev, auto-login with admin/123 to skip manual login
     if (isDev()) {
       setLoading(true);
-      const id = setTimeout(() => {
-        storeLogin("admin", "123")
-          .then(() => nav("/", { replace: true }))
-          .catch(() => setLoading(false));
-      }, 3000);
+      const id = setTimeout(async () => {
+        try {
+          const res = await userService.login("admin", "123");
+          setAuth({
+            user: res.user,
+            token: res.token,
+            refreshToken: res.refreshToken,
+          });
+          nav("/", { replace: true });
+        } catch (_) {
+          setLoading(false);
+        }
+      }, 1500);
       return () => clearTimeout(id);
     }
-  }, [nav]);
+  }, [nav, setAuth]);
 
   async function onFinish(values: { email: string; password: string }) {
     try {
       setLoading(true);
-      await storeLogin(values.email, values.password);
+      const res = await userService.login(values.email, values.password);
+      setAuth({
+        user: res.user,
+        token: res.token,
+        refreshToken: res.refreshToken,
+      });
       nav("/", { replace: true });
     } catch (_e) {
       message.error("Login failed");

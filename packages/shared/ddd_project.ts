@@ -2,6 +2,7 @@
  * Domain-Driven Design Project shared model.
  * This lives in packages/shared so both backend (persistence / API) and frontend (editors) use one source of truth.
  */
+import { z } from "zod";
 
 // Fixed canonical step identifiers (stable keys for DB + API)
 export enum DddStepKind {
@@ -18,12 +19,13 @@ export enum DddStepKind {
 }
 
 // Rich metadata for each step: label (short), goal (Ziel), deliverable description and optional starter example.
-export type DddStepMeta = {
-  label: string;
-  goal: string; // Warum / Ziel des Schritts
-  deliverable: string; // Beschreibung des erwarteten Artefakts
-  example?: string; // Kleines Start-Beispiel / Template
-};
+const DddStepMetaSchema = z.object({
+  label: z.string(),
+  goal: z.string(),
+  deliverable: z.string(),
+  example: z.string().optional(),
+});
+export type DddStepMeta = z.infer<typeof DddStepMetaSchema>;
 
 export const DDD_STEP_META: Record<DddStepKind, DddStepMeta> = {
   [DddStepKind.VisionScope]: {
@@ -111,141 +113,44 @@ export const DDD_STEP_LABEL: Record<DddStepKind, string> = Object.fromEntries(
 ) as Record<DddStepKind, string>;
 
 /** Generic file attachment (e.g. screenshot, board photo) */
-export type AttachmentRef = {
-  id: string; // UUID (generated client or server)
-  fileName: string;
-  mimeType: string;
-  sizeBytes?: number;
-  /** Backend can fill a signed/relative URL for download */
-  url?: string;
-  /** Optional short description / alt text */
-  note?: string;
-  createdAt: string; // ISO timestamp
-};
+export type AttachmentRef = z.infer<typeof AttachmentRefSchema>;
 
 /** Base shape all step content variants share */
-type StepBase = {
-  kind: DddStepKind;
-  /** Free-form markdown / rich text content (core 80/20). */
-  notes: string;
-  /** Additional attachments (screenshots, photos) */
-  attachments: AttachmentRef[];
-  /** ISO timestamp of last edit on this step */
-  updatedAt: string;
-};
+// (StepBase now modeled via StepBaseSchema and specialized schemas below)
 
 // Specialized optional structured fields per step (capturing the recommended deliverables)
-export type VisionScopeContent = StepBase & {
-  kind: DddStepKind.VisionScope;
-  visionTwoSentence?: string; // 2-Satz-Vision
-  outOfScope?: string[]; // 3-5 Punkte
-};
-
-export type MiniEventStormingContent = StepBase & {
-  kind: DddStepKind.MiniEventStorming;
-  domainEvents?: string[]; // past tense events 15-25
-  commands?: string[]; // 5-10 commands
-  externalSystems?: string[]; // 3-5 systems
-  openQuestions?: string[];
-};
-
-export type UbiquitousLanguageContent = StepBase & {
-  kind: DddStepKind.UbiquitousLanguage;
-  glossary?: { term: string; definition: string }[]; // 10-20 Begriffe
-};
-
-export type SubdomainsBoundedContextsContent = StepBase & {
-  kind: DddStepKind.SubdomainsBoundedContexts;
-  subdomains?: {
-    name: string;
-    type: "core" | "supporting" | "generic";
-    description?: string;
-  }[];
-  boundedContexts?: { name: string; purpose?: string; relations?: string[] }[];
-};
-
-export type ThinSliceContent = StepBase & {
-  kind: DddStepKind.ThinSlice;
-  sliceStatement?: string; // "User kann ..."
-  acceptanceCriteria?: string[]; // 3-5
-};
-
-export type TacticalModelContent = StepBase & {
-  kind: DddStepKind.TacticalModel;
-  aggregates?: {
-    name: string;
-    purpose?: string;
-    invariants?: string[]; // 3-7 Regeln
-    commands?: { name: string; emits?: string[]; errors?: string[] }[];
-    domainEvents?: string[];
-  }[];
-};
-
-export type UseCasesPortsContractsContent = StepBase & {
-  kind: DddStepKind.UseCasesPortsContracts;
-  useCases?: {
-    name: string;
-    preconditions?: string[];
-    postconditions?: string[];
-    happyPath?: string[]; // ordered steps
-    errorPaths?: string[];
-  }[];
-  apiContracts?: {
-    name: string;
-    method?: string;
-    path?: string;
-    description?: string;
-  }[]; // coarse OpenAPI-like
-};
-
-export type ArchitectureCutContent = StepBase & {
-  kind: DddStepKind.ArchitectureCut;
-  folderSkeleton?: string; // e.g. code block text
-  decisions?: string[]; // key choices
-};
-
-export type WalkingSkeletonContent = StepBase & {
-  kind: DddStepKind.WalkingSkeleton;
-  endpoints?: string[]; // implemented endpoints
-  acceptanceTests?: string[]; // Gherkin-ish titles
-  domainTests?: string[]; // invariants test names
-  integrationNotes?: string[]; // events logged/outbox etc.
-};
-
-export type ReviewNextStepsContent = StepBase & {
-  kind: DddStepKind.ReviewNextSteps;
-  retrospectiveNotes?: { clear: string[]; uncertain: string[] };
-  backlog?: {
-    nextSliceIdeas?: string[];
-    risks?: string[];
-    openArchitectureDecisions?: string[];
-  };
-};
+export type VisionScopeContent = z.infer<typeof VisionScopeContentSchema>;
+export type MiniEventStormingContent = z.infer<
+  typeof MiniEventStormingContentSchema
+>;
+export type UbiquitousLanguageContent = z.infer<
+  typeof UbiquitousLanguageContentSchema
+>;
+export type SubdomainsBoundedContextsContent = z.infer<
+  typeof SubdomainsBoundedContextsContentSchema
+>;
+export type ThinSliceContent = z.infer<typeof ThinSliceContentSchema>;
+export type TacticalModelContent = z.infer<typeof TacticalModelContentSchema>;
+export type UseCasesPortsContractsContent = z.infer<
+  typeof UseCasesPortsContractsContentSchema
+>;
+export type ArchitectureCutContent = z.infer<
+  typeof ArchitectureCutContentSchema
+>;
+export type WalkingSkeletonContent = z.infer<
+  typeof WalkingSkeletonContentSchema
+>;
+export type ReviewNextStepsContent = z.infer<
+  typeof ReviewNextStepsContentSchema
+>;
 
 // Strongly typed mapping: verhindert falsches Zuordnen eines fremden Content-Objekts zu einem Step-Key
-export type DddProjectContentMap = {
-  [DddStepKind.VisionScope]: VisionScopeContent;
-  [DddStepKind.MiniEventStorming]: MiniEventStormingContent;
-  [DddStepKind.UbiquitousLanguage]: UbiquitousLanguageContent;
-  [DddStepKind.SubdomainsBoundedContexts]: SubdomainsBoundedContextsContent;
-  [DddStepKind.ThinSlice]: ThinSliceContent;
-  [DddStepKind.TacticalModel]: TacticalModelContent;
-  [DddStepKind.UseCasesPortsContracts]: UseCasesPortsContractsContent;
-  [DddStepKind.ArchitectureCut]: ArchitectureCutContent;
-  [DddStepKind.WalkingSkeleton]: WalkingSkeletonContent;
-  [DddStepKind.ReviewNextSteps]: ReviewNextStepsContent;
-};
+export type DddProjectContentMap = z.infer<typeof DddProjectContentMapSchema>;
 
 export type DddProjectStepContent =
   DddProjectContentMap[keyof DddProjectContentMap];
 
-export type DddProject = {
-  id: string; // UUID
-  name: string;
-  createdAt: string; // ISO
-  updatedAt: string; // ISO (any change updates project)
-  content: DddProjectContentMap; // strikt typisiert
-};
+export type DddProject = z.infer<typeof DddProjectSchema>;
 
 // Canonical ordered list of steps (use as template and for ordering in UI)
 export const DDD_STEPS: DddStepKind[] = [
@@ -261,67 +166,110 @@ export const DDD_STEPS: DddStepKind[] = [
   DddStepKind.ReviewNextSteps,
 ];
 
-/** Create a new empty project scaffold */
-export function createEmptyProject(name: string, id: string): DddProject {
+export const createNewProject = (
+  name: string,
+  id: string,
+  abstract: string
+): DddProject => {
   const now = new Date().toISOString();
-  const make = <K extends DddStepKind>(kind: K): DddProjectContentMap[K] => {
-    const base: StepBase = {
+
+  return {
+    id,
+    name,
+    createdAt: now,
+    abstract,
+    updatedAt: now,
+    content: DDD_STEPS.map((kind) => ({
       kind,
       notes: "",
       attachments: [],
+      completed: false,
       updatedAt: now,
-    };
-    // Für leeres Projekt reichen Basiseigenschaften; spezialisierte Felder optional
-    return base as DddProjectContentMap[K];
+    })).reduce(
+      (obj, step) => ({ ...obj, [step.kind]: step }),
+      {}
+    ) as unknown as DddProjectContentMap,
   };
-  const content: DddProjectContentMap = {
-    [DddStepKind.VisionScope]: make(DddStepKind.VisionScope),
-    [DddStepKind.MiniEventStorming]: make(DddStepKind.MiniEventStorming),
-    [DddStepKind.UbiquitousLanguage]: make(DddStepKind.UbiquitousLanguage),
-    [DddStepKind.SubdomainsBoundedContexts]: make(
-      DddStepKind.SubdomainsBoundedContexts
-    ),
-    [DddStepKind.ThinSlice]: make(DddStepKind.ThinSlice),
-    [DddStepKind.TacticalModel]: make(DddStepKind.TacticalModel),
-    [DddStepKind.UseCasesPortsContracts]: make(
-      DddStepKind.UseCasesPortsContracts
-    ),
-    [DddStepKind.ArchitectureCut]: make(DddStepKind.ArchitectureCut),
-    [DddStepKind.WalkingSkeleton]: make(DddStepKind.WalkingSkeleton),
-    [DddStepKind.ReviewNextSteps]: make(DddStepKind.ReviewNextSteps),
-  };
-  return { id, name, createdAt: now, updatedAt: now, content };
+};
+
+// ---------------- Zod Schema (runtime validation) ----------------
+
+// Reusable ISO timestamp string (UTC or with offset); Zod v4 .datetime() handles validation.
+const isoDateTime = z.iso.datetime();
+
+export const AttachmentRefSchema = z.object({
+  id: z.string().min(3),
+  fileName: z.string().min(1),
+  mimeType: z.string().min(1),
+  sizeBytes: z.number().int().positive().optional(),
+  url: z.string().url().optional(),
+  note: z.string().optional(),
+  createdAt: isoDateTime,
+});
+
+// Base step schema (without kind literal) used for each specialized step.
+const StepBaseSchema = z.object({
+  notes: z.string(),
+  attachments: z.array(AttachmentRefSchema),
+  completed: z.boolean(),
+  updatedAt: isoDateTime,
+});
+
+// Helper to build a step schema with a fixed kind literal.
+const step = <K extends DddStepKind>(kind: K) =>
+  StepBaseSchema.extend({ kind: z.literal(kind) });
+
+export const VisionScopeContentSchema = step(DddStepKind.VisionScope);
+export const MiniEventStormingContentSchema = step(
+  DddStepKind.MiniEventStorming
+);
+export const UbiquitousLanguageContentSchema = step(
+  DddStepKind.UbiquitousLanguage
+);
+export const SubdomainsBoundedContextsContentSchema = step(
+  DddStepKind.SubdomainsBoundedContexts
+);
+export const ThinSliceContentSchema = step(DddStepKind.ThinSlice);
+export const TacticalModelContentSchema = step(DddStepKind.TacticalModel);
+export const UseCasesPortsContractsContentSchema = step(
+  DddStepKind.UseCasesPortsContracts
+);
+export const ArchitectureCutContentSchema = step(DddStepKind.ArchitectureCut);
+export const WalkingSkeletonContentSchema = step(DddStepKind.WalkingSkeleton);
+export const ReviewNextStepsContentSchema = step(DddStepKind.ReviewNextSteps);
+
+export const DddProjectContentMapSchema = z.object({
+  [DddStepKind.VisionScope]: VisionScopeContentSchema,
+  [DddStepKind.MiniEventStorming]: MiniEventStormingContentSchema,
+  [DddStepKind.UbiquitousLanguage]: UbiquitousLanguageContentSchema,
+  [DddStepKind.SubdomainsBoundedContexts]:
+    SubdomainsBoundedContextsContentSchema,
+  [DddStepKind.ThinSlice]: ThinSliceContentSchema,
+  [DddStepKind.TacticalModel]: TacticalModelContentSchema,
+  [DddStepKind.UseCasesPortsContracts]: UseCasesPortsContractsContentSchema,
+  [DddStepKind.ArchitectureCut]: ArchitectureCutContentSchema,
+  [DddStepKind.WalkingSkeleton]: WalkingSkeletonContentSchema,
+  [DddStepKind.ReviewNextSteps]: ReviewNextStepsContentSchema,
+});
+
+export const DddProjectSchema = z.object({
+  // Project IDs are human-friendly slug-hash (not strict UUID)
+  id: z.string().min(3),
+  name: z.string().min(1),
+  abstract: z.string().min(1),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+  content: DddProjectContentMapSchema,
+});
+
+export type DddProjectValidated = z.infer<typeof DddProjectSchema>; // alias
+
+export function parseDddProject(input: unknown): DddProject {
+  return DddProjectSchema.parse(input);
 }
 
-/** Update helper: replaces a step by kind immutably */
-export function updateStep<K extends DddStepKind>(
-  project: DddProject,
-  kind: K,
-  step: DddProjectContentMap[K]
-): DddProject {
-  // Sicherheitsnetz: Laufzeitcheck, falls kind !== step.kind (sollte statisch verhindert sein)
-  if (step.kind !== kind) {
-    throw new Error(`Step kind mismatch: key=${kind} payload=${step.kind}`);
-  }
-  return {
-    ...project,
-    updatedAt: new Date().toISOString(),
-    content: { ...project.content, [kind]: step } as DddProjectContentMap,
-  };
+export function isDddProject(input: unknown): input is DddProject {
+  return DddProjectSchema.safeParse(input).success;
 }
 
-/** Quick lookup */
-export function findStep<K extends DddStepKind>(
-  project: DddProject,
-  kind: K
-): DddProjectContentMap[K] {
-  return project.content[kind];
-}
-
-// Suggested (SQLite) persistence sketch (not executable code):
-// projects(id TEXT PK, name TEXT NOT NULL, created_at TEXT, updated_at TEXT)
-// project_steps(project_id TEXT FK -> projects.id, kind TEXT, notes TEXT, attachments_json TEXT, content_json TEXT, updated_at TEXT,
-//               PRIMARY KEY(project_id, kind))
-// Attachments can either be stored inside attachments_json (array of objects) or normalized if needed:
-// project_attachments(id TEXT PK, project_id TEXT, step_kind TEXT, file_name TEXT, mime_type TEXT, size_bytes INTEGER, note TEXT, created_at TEXT)
-// File binary storage handled externally (filesystem/object storage) mapping by attachment id.
+export const DddProjectArraySchema = z.array(DddProjectSchema);

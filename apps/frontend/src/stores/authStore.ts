@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User, login as apiLogin, clearAuth, saveAuth } from "../lib/auth.ts";
+import { userService, type User } from "../lib/user_service.ts";
 
 type AuthState = {
   user: User | null;
@@ -14,7 +14,7 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, _get) => ({
       user: null,
       token: null,
       refreshToken: null,
@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
       async login(email, password) {
         set({ loggingIn: true });
         try {
-          const res = await apiLogin(email, password);
+          const res = await userService.login(email, password);
           set({
             user: res.user,
             token: res.token,
@@ -30,14 +30,14 @@ export const useAuthStore = create<AuthState>()(
             loggingIn: false,
           });
           // keep lib/auth localStorage in sync for API helpers that read it
-          saveAuth(res);
+          userService.saveAuth(res);
         } catch (e) {
           set({ loggingIn: false });
           throw e;
         }
       },
       logout() {
-        clearAuth();
+        userService.clearAuth();
         set({ user: null, token: null, refreshToken: null });
       },
       setAuth(p) {
@@ -54,3 +54,10 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// register token updater so refresh logic syncs state token
+userService.setTokenUpdater((t) => {
+  const { user, refreshToken } = useAuthStore.getState();
+  if (!t) return; // if token lost we leave state until explicit logout
+  useAuthStore.setState({ token: t, user, refreshToken });
+});

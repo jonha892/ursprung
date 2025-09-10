@@ -36,6 +36,26 @@ export class RefreshTokenRepository {
       "SELECT * FROM refresh_tokens WHERE token = ? LIMIT 1",
       [token]
     )[0];
+    if (!row) {
+      // Diagnostic: count how many tokens exist (helps detect DB resets)
+      try {
+        const countRow = this.db.queryEntries<{ c: number }>(
+          "SELECT COUNT(*) AS c FROM refresh_tokens"
+        )[0];
+        const count = countRow?.c ?? 0;
+        console.error(
+          JSON.stringify({
+            level: "error",
+            at: "refresh_token_repository.find",
+            token_prefix: token.slice(0, 8),
+            reason: "not_found",
+            total_tokens: count,
+          })
+        );
+      } catch (_) {
+        // ignore
+      }
+    }
     return row ?? null;
   }
 
