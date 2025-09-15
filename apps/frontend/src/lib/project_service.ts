@@ -23,6 +23,20 @@ export class ProjectService {
     return json.projects;
   }
 
+  async get(id: string): Promise<DddProject> {
+    await userService.ensureFreshToken();
+    const headers = new Headers({ "content-type": "application/json" });
+    const auth = this.authHeaders();
+    Object.entries(auth).forEach(([k, v]) => headers.append(k, v));
+    const res = await fetch(`${this.base}/api/projects/${id}`, { headers });
+    if (!res.ok) {
+      if (res.status === 404) throw new Error("project_not_found");
+      throw new Error("project_load_failed");
+    }
+    const json = (await res.json()) as { project: DddProject };
+    return json.project;
+  }
+
   /**
    * Temporary client-side project creation until backend persistence exists.
    * ID strategy: slugified name + '-' + short random base36 hash.
@@ -53,6 +67,25 @@ export class ProjectService {
     if (!res.ok) {
       const txt = await res.text();
       throw new Error(`project_insert_failed:${res.status}:${txt}`);
+    }
+    const json = (await res.json()) as { project: DddProject };
+    return json.project;
+  }
+
+  async update(project: DddProject): Promise<DddProject> {
+    await userService.ensureFreshToken();
+    const headers = new Headers({ "content-type": "application/json" });
+    Object.entries(this.authHeaders()).forEach(([k, v]) =>
+      headers.append(k, v)
+    );
+    const res = await fetch(`${this.base}/api/projects/${project.id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(project),
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`project_update_failed:${res.status}:${txt}`);
     }
     const json = (await res.json()) as { project: DddProject };
     return json.project;

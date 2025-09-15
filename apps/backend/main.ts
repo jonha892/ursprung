@@ -187,6 +187,27 @@ router
     ctx.response.type = "json";
     ctx.response.body = { projects: list };
   })
+  // Get a specific project by ID for current user
+  .get("/api/projects/:id", authMiddleware, (ctx) => {
+    const projectId = ctx.params.id!;
+    const userId = ctx.state.user!.id;
+    
+    if (!projectId) {
+      ctx.response.status = 400;
+      ctx.response.body = { error: "missing_project_id" };
+      return;
+    }
+
+    const project = projectsRepo.find(userId, projectId);
+    if (!project) {
+      ctx.response.status = 404;
+      ctx.response.body = { error: "project_not_found" };
+      return;
+    }
+
+    ctx.response.type = "json";
+    ctx.response.body = { project };
+  })
   // Insert a project created client-side (must be full valid object)
   .post("/api/projects", authMiddleware, async (ctx) => {
     const body = ctx.request.hasBody

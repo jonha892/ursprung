@@ -1,28 +1,31 @@
 {
-  "tasks": {
-    "dev": "deno run -A --node-modules-dir npm:vite",
-    "build": "deno run -A --node-modules-dir npm:vite build",
-    "preview": "deno run -A --node-modules-dir npm:vite preview",
-    "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server dist/"
-  },
-  "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "jsxImportSourceTypes": "@types/react"
-  },
-  "imports": {
-    "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.5",
-    "@types/react": "npm:@types/react@^19.1.9",
-    "@types/react-dom": "npm:@types/react-dom@^19.1.7",
-    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@^3.10.2",
-    "antd": "npm:antd@^5",
-  "@ant-design/v5-patch-for-react-19": "npm:@ant-design/v5-patch-for-react-19@^1.0.0",
-    "zustand": "npm:zustand@^5.0.0-rc.2",
-    "react-router-dom": "npm:react-router-dom@^6.26.2",
-    "react": "npm:react@^19.1.1",
-    "react-dom": "npm:react-dom@^19.1.1",
-    "vite": "npm:vite@^7.0.6",
-    "zod": "npm:zod@^4.1.5"
-  }
+    "tasks": {
+        "dev": "deno run -A --node-modules-dir npm:vite",
+        "build": "deno run -A --node-modules-dir npm:vite build",
+        "preview": "deno run -A --node-modules-dir npm:vite preview",
+        "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server dist/"
+    },
+    "compilerOptions": {
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "jsx": "react-jsx",
+        "jsxImportSource": "react",
+        "jsxImportSourceTypes": "@types/react"
+    },
+    "imports": {
+        "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.5",
+        "@openai/agents": "npm:@openai/agents@^0.1.1",
+        "@types/react": "npm:@types/react@^19.1.9",
+        "@types/react-dom": "npm:@types/react-dom@^19.1.7",
+        "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@^3.10.2",
+        "antd": "npm:antd@^5",
+        "@ant-design/v5-patch-for-react-19": "npm:@ant-design/v5-patch-for-react-19@^1.0.0",
+        "@ant-design/icons": "npm:@ant-design/icons@^5",
+        "openai": "npm:openai@^5.20.1",
+        "zod": "npm:zod@^3.25.76",
+        "zustand": "npm:zustand@^5.0.0-rc.2",
+        "react-router-dom": "npm:react-router-dom@^6.26.2",
+        "react": "npm:react@^19.1.1",
+        "react-dom": "npm:react-dom@^19.1.1",
+        "vite": "npm:vite@^7.0.6"
+    }
 }

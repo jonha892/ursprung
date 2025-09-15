@@ -31,9 +31,9 @@ export const DDD_STEP_META: Record<DddStepKind, DddStepMeta> = {
   [DddStepKind.VisionScope]: {
     label: "Vision & Scope",
     goal: "Warum existiert das Produkt, für wen ist es, und was ist explizit außerhalb des Scopes?",
-    deliverable: "Zwei-Satz-Vision + 3-5 Out-of-Scope-Punkte (No-Gos).",
+    deliverable: "Zwei Texte: Vision und Scope.",
     example:
-      "Vision: Für Freiberufler, die Rechnungen manuell pflegen, bietet BillSpark automatisierte Rechnungserstellung und Zahlungserinnerungen. Anders als Tabellen & PDF-Templates spart es Zeit und reduziert Fehler.\nOut-of-Scope: (1) Mehrsprachige PDFs, (2) Steuerberechnung, (3) Mobile App.",
+      "Vision: Für Freiberufler, die Rechnungen manuell pflegen, bietet BillSpark automatisierte Rechnungserstellung und Zahlungserinnerungen. Anders als Tabellen & PDF-Templates spart es Zeit und reduziert Fehler.\nScope: Out-of-Scope: (1) Mehrsprachige PDFs, (2) Steuerberechnung, (3) Mobile App.",
   },
   [DddStepKind.MiniEventStorming]: {
     label: "Mini-Event-Storming",
@@ -179,13 +179,22 @@ export const createNewProject = (
     createdAt: now,
     abstract,
     updatedAt: now,
-    content: DDD_STEPS.map((kind) => ({
-      kind,
-      notes: "",
-      attachments: [],
-      completed: false,
-      updatedAt: now,
-    })).reduce(
+    content: DDD_STEPS.map((kind) => {
+      if (kind === DddStepKind.VisionScope) {
+        return {
+          kind,
+          vision: "",
+          scope: "",
+          completed: false,
+          updatedAt: now,
+        };
+      }
+      return {
+        kind,
+        completed: false,
+        updatedAt: now,
+      };
+    }).reduce(
       (obj, step) => ({ ...obj, [step.kind]: step }),
       {}
     ) as unknown as DddProjectContentMap,
@@ -195,7 +204,7 @@ export const createNewProject = (
 // ---------------- Zod Schema (runtime validation) ----------------
 
 // Reusable ISO timestamp string (UTC or with offset); Zod v4 .datetime() handles validation.
-const isoDateTime = z.iso.datetime();
+// const isoDateTime = z.datetime();
 
 export const AttachmentRefSchema = z.object({
   id: z.string().min(3),
@@ -204,22 +213,24 @@ export const AttachmentRefSchema = z.object({
   sizeBytes: z.number().int().positive().optional(),
   url: z.string().url().optional(),
   note: z.string().optional(),
-  createdAt: isoDateTime,
+  createdAt: z.string().datetime(),
 });
 
 // Base step schema (without kind literal) used for each specialized step.
 const StepBaseSchema = z.object({
-  notes: z.string(),
-  attachments: z.array(AttachmentRefSchema),
+  updatedAt: z.string().datetime(),
   completed: z.boolean(),
-  updatedAt: isoDateTime,
 });
 
 // Helper to build a step schema with a fixed kind literal.
 const step = <K extends DddStepKind>(kind: K) =>
   StepBaseSchema.extend({ kind: z.literal(kind) });
 
-export const VisionScopeContentSchema = step(DddStepKind.VisionScope);
+export const VisionScopeContentSchema = StepBaseSchema.extend({
+  kind: z.literal(DddStepKind.VisionScope),
+  vision: z.string(),
+  scope: z.string(),
+});
 export const MiniEventStormingContentSchema = step(
   DddStepKind.MiniEventStorming
 );
@@ -257,8 +268,8 @@ export const DddProjectSchema = z.object({
   id: z.string().min(3),
   name: z.string().min(1),
   abstract: z.string().min(1),
-  createdAt: isoDateTime,
-  updatedAt: isoDateTime,
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
   content: DddProjectContentMapSchema,
 });
 
