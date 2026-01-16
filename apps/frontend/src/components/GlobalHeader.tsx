@@ -11,7 +11,7 @@ export interface GlobalHeaderProps {
 }
 
 export const GlobalHeader: FC<GlobalHeaderProps> = ({ isDark, onToggle }) => {
-    const user = useAuthStore((s) => s.user);
+    const _user = useAuthStore((s) => s.user);
     const { token } = theme.useToken();
     return (
         <Header
@@ -30,7 +30,7 @@ export const GlobalHeader: FC<GlobalHeaderProps> = ({ isDark, onToggle }) => {
             <div
                 style={{
                     width: "100%",
-                    maxWidth: 1280,
+                    maxWidth: 1400,
                     margin: "0 auto",
                     display: "flex",
                     alignItems: "center",

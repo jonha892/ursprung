@@ -48,7 +48,7 @@ export function BaseStepEdit({
     });
 
     return (
-        <div style={{ padding: "96px 32px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ padding: "96px 32px", maxWidth: 1400, margin: "0 auto" }}>
             {/* Breadcrumbs */}
             <Breadcrumb
                 style={{ marginBottom: 16 }}

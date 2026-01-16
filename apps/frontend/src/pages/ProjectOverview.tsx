@@ -63,7 +63,7 @@ export default function ProjectOverview() {
             <div
                 style={{
                     padding: "96px 32px",
-                    maxWidth: 1280,
+                    maxWidth: 1400,
                     margin: "0 auto",
                     display: "flex",
                     justifyContent: "center",
@@ -87,7 +87,7 @@ export default function ProjectOverview() {
     const allDone = doneSteps === totalSteps;
 
     return (
-        <div style={{ padding: "96px 32px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ padding: "96px 32px", maxWidth: 1400, margin: "0 auto" }}>
             <Breadcrumb
                 style={{ marginBottom: 16 }}
                 items={[

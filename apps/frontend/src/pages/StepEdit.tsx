@@ -68,7 +68,7 @@ export default function StepEdit() {
             <div
                 style={{
                     padding: "96px 32px",
-                    maxWidth: 1280,
+                    maxWidth: 1400,
                     margin: "0 auto",
                     display: "flex",
                     justifyContent: "center",

@@ -171,7 +171,7 @@ export const Profile: FC = () => {
                     form.resetFields();
                 }}
                 footer={null}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}

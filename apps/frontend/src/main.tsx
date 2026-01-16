@@ -10,6 +10,8 @@ import Login from "./pages/Login.tsx";
 import ProjectOverview from "./pages/ProjectOverview.tsx";
 import StepEdit from "./pages/StepEdit.tsx";
 import ChatTest from "./pages/ChatTest.tsx";
+import EventStormingSandbox from "./pages/EventStormingSandbox.tsx";
+import TldrawEventStormingSandbox from "./pages/TldrawEventStormingSandbox.tsx";
 import { useAuthStore } from "./stores/authStore.ts";
 import { GlobalHeader } from "./components/GlobalHeader.tsx";
 import { useConfigStore } from "./stores/configStore.ts";
@@ -65,6 +67,8 @@ function AppWithTheme() {
                                     <Route path="/projects/:id" element={<ProjectOverview />} />
                                     <Route path="/projects/:id/steps/:step" element={<StepEdit />} />
                                     <Route path="/chat" element={<ChatTest />} />
+                                    <Route path="/sandbox/eventstorming" element={<EventStormingSandbox />} />
+                                    <Route path="/sandbox/tldraw-eventstorming" element={<TldrawEventStormingSandbox />} />
                                 </Route>
                                 <Route path="/login" element={<Login />} />
                                 <Route path="*" element={<Navigate to="/" replace />} />
